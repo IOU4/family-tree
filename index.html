@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>FamilyTree</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="config.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  </head>
+  <body>
+    <section class="w-screen h-screen bg-secondary dark:bg-primary text-primary dark:text-secondary">
+      <div class="mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:h-screen lg:items-center">
+        <div class="mx-auto max-w-xl text-center">
+          <div class="flex flex-col items-start gap-4">
+            <div class="w-full bg-transparent border-0 py-2 px-2 text-primary bg-secondary dark:text-secondary ring-1 ring-inset ring-primary dark:ring-secondary">
+              <p class="text-lg font-semibold">{{.fullName}}</p>
+              <p class="text-sm text-primary/70 dark:text-secondary/70">{{.age}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

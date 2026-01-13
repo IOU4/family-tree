@@ -1,0 +1,5 @@
+.button-shadow { @apply inline-block border border-current transition-all shadow-[0.125rem_0.125rem_0px] shadow-primary
+                hover:translate-x-1 hover:translate-y-1 hover:shadow-none
+                focus:outline-none focus:shadow-none
+                dark:shadow-[0.125rem_0.125rem_0px] dark:shadow-secondary;
+}

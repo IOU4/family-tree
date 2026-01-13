@@ -1,0 +1,7 @@
+services:
+  nginx:
+    image: nginx:1.27-alpine3.20-perl
+    volumes:
+      - .:/usr/share/nginx/html
+    ports:
+      - 80:80

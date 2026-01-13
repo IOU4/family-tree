@@ -1,0 +1,5 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="simple tree">
+  <rect x="28" y="38" width="8" height="18" rx="2" ry="2" fill="#8b5a2b" />
+  <path d="M32 12c-9 0-16 7-16 16h32c0-9-7-16-16-16z" fill="#2e8b57" />
+  <path d="M20 28c-2 2-4 5-4 8 0 5 4 9 9 9h10c5 0 9-4 9-9 0-3-2-6-4-8H20z" fill="#3cb371" />
+</svg>
