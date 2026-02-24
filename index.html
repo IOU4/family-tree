@@ -6,23 +6,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark light">
     <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="config.js"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
   </head>
   <body>
-    <section class="w-screen h-screen bg-secondary dark:bg-primary text-primary dark:text-secondary">
-      <div class="mx-auto max-w-screen-xl px-4 py-32 lg:flex lg:h-screen lg:items-center">
-        <div class="mx-auto max-w-xl text-center">
-          <div class="flex flex-col items-start gap-4">
-            <div class="w-full bg-transparent border-0 py-2 px-2 text-primary bg-secondary dark:text-secondary ring-1 ring-inset ring-primary dark:ring-secondary">
-              <p class="text-lg font-semibold">{{.fullName}}</p>
-              <p class="text-sm text-primary/70 dark:text-secondary/70">{{.age}}</p>
-            </div>
-          </div>
+    <div class="container">
+      <h1>Fam</h1>
+      <div id="people-grid" class="grid">
+        {{range .people}}
+        <div class="card">
+          <p class="card-name">{{.FullName}}</p>
+          <p class="card-detail">Age: {{.Age}}</p>
         </div>
+        {{end}}
+        <button class="add-btn" onclick="document.getElementById('add-form').classList.add('visible'); this.style.display='none'"> + </button>
+        <form id="add-form" class="add-form"
+          hx-post="/person" hx-target="#people-grid" hx-swap="outerHTML">
+          <input name="first_name" placeholder="First name" required>
+          <input name="last_name" placeholder="Last name" required>
+          <input name="birthday" type="date" required>
+          <select name="gender" required>
+            <option value="1">Female</option>
+            <option value="2">Male</option>
+          </select>
+          <button type="submit">Add</button>
+        </form>
       </div>
-    </section>
+    </div>
   </body>
 </html>

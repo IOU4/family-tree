@@ -1,5 +1,118 @@
-.button-shadow { @apply inline-block border border-current transition-all shadow-[0.125rem_0.125rem_0px] shadow-primary
-                hover:translate-x-1 hover:translate-y-1 hover:shadow-none
-                focus:outline-none focus:shadow-none
-                dark:shadow-[0.125rem_0.125rem_0px] dark:shadow-secondary;
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #f9fafb;
+  --fg: #030712;
+  --fg-muted: rgba(3, 7, 18, 0.5);
+  --border: #030712;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #030712;
+    --fg: #f9fafb;
+    --fg-muted: rgba(249, 250, 251, 0.5);
+    --border: #f9fafb;
+  }
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 4rem 1rem;
+}
+
+h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px)  { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 768px)  { .grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+
+.card {
+  border: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.card-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.card-detail {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+}
+
+.add-btn {
+  border: 1px dashed var(--border);
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  cursor: pointer;
+  background: transparent;
+  color: var(--fg);
+  transition: background 0.15s;
+}
+
+.add-btn:hover {
+  background: rgba(128, 128, 128, 0.1);
+}
+
+.add-form {
+  border: 1px solid var(--border);
+  padding: 1rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-form.visible {
+  display: flex;
+}
+
+.add-form input,
+.add-form select,
+.add-form button {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  color: var(--fg);
+}
+
+.add-form input::placeholder {
+  color: var(--fg-muted);
+}
+
+.add-form button {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.add-form button:hover {
+  background: rgba(128, 128, 128, 0.1);
 }

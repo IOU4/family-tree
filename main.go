@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -11,9 +12,11 @@ import (
 )
 
 var people []Person
+var db *sql.DB
 
 func main() {
-	db, err := sql.Open("sqlite3", "./database.db")
+	var err error
+	db, err = sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -21,18 +24,60 @@ func main() {
 	people = getPersons(db)
 	router := gin.Default()
 	router.GET("/", getIndex)
+	router.POST("/person", addPerson)
 	router.LoadHTMLFiles("index.html")
 	router.StaticFile("styles.css", "styles.css")
-	router.StaticFile("config.js", "config.js")
 	router.StaticFile("favicon.svg", "favicon.svg")
 	router.Run(":8080")
 }
 
 func getIndex(c *gin.Context) {
-	person := people[0]
+	var views []PersonView
+	for _, p := range people {
+		views = append(views, PersonView{
+			FullName: p.FirstName + " " + p.LastName,
+			Age:      calculateAge(p.Birth),
+		})
+	}
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"fullName": person.first_name + " " + person.last_name,
-		"age":      calculateAge(person.birth),
+		"people": views,
+	})
+}
+
+func addPerson(c *gin.Context) {
+	firstName := c.PostForm("first_name")
+	lastName := c.PostForm("last_name")
+	birthday := c.PostForm("birthday")
+	genderStr := c.PostForm("gender")
+
+	gender, err := strconv.Atoi(genderStr)
+	if err != nil {
+		c.String(http.StatusBadRequest, "invalid gender")
+		return
+	}
+
+	_, err = db.Exec(
+		"INSERT INTO person (first_name, last_name, birthday, gender) VALUES (?, ?, ?, ?)",
+		firstName, lastName, birthday, gender,
+	)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "failed to add person")
+		return
+	}
+
+	// refresh in-memory list
+	people = getPersons(db)
+
+	// return updated grid for htmx swap
+	var views []PersonView
+	for _, p := range people {
+		views = append(views, PersonView{
+			FullName: p.FirstName + " " + p.LastName,
+			Age:      calculateAge(p.Birth),
+		})
+	}
+	c.HTML(http.StatusOK, "index.html", gin.H{
+		"people": views,
 	})
 }
 
@@ -56,15 +101,12 @@ func getPersons(db *sql.DB) (people []Person) {
 	for rows.Next() {
 		var person Person
 		err := rows.Scan(
-			&person.id,
-			&person.first_name,
-			&person.last_name,
-			&person.birth,
-			&person.gender,
-			&person.misc)
-		if err != nil {
-			log.Fatal(err)
-		}
+			&person.ID,
+			&person.FirstName,
+			&person.LastName,
+			&person.Birth,
+			&person.Gender,
+			&person.Misc)
 		if err != nil {
 			log.Fatal(err)
 		}
