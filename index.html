@@ -5,23 +5,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark light">
-    <script src="https://unpkg.com/htmx.org@2.0.3" integrity="sha384-0895/pl2MU10Hqc6jd4RvrthNlDiE9U1tWmX7WRESftEDRosgxNsQG/Ze9YMRzHq" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.3" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
   </head>
+
   <body>
-    <div class="container">
-      <h1>Fam</h1>
-      <div id="people-grid" class="grid">
-        {{range .people}}
+    <div class="fam">
+      <div class="row-parents">
+        {{range .person.Parents}}
         <div class="card">
           <p class="card-name">{{.FullName}}</p>
-          <p class="card-detail">Age: {{.Age}}</p>
+          <p class="card-detail">{{.Age}} {{.Gender}}</p>
         </div>
         {{end}}
-        <button class="add-btn" onclick="document.getElementById('add-form').classList.add('visible'); this.style.display='none'"> + </button>
-        <form id="add-form" class="add-form"
-          hx-post="/person" hx-target="#people-grid" hx-swap="outerHTML">
+      </div>
+
+        <div class="col-siblings">
+          {{range .person.Siblings}}
+          <div class="card">
+            <p class="card-name">{{.FullName}}</p>
+            <p class="card-detail">{{.Age}} {{.Gender}}</p>
+          </div>
+          {{end}}
+        </div>
+
+      <div class="row-middle">
+        <div class="card card-main">
+          <p class="card-name">{{.person.FullName}}</p>
+          <p class="card-detail">{{.person.Age}} {{.person.Gender}}</p>
+        </div>
+      </div>
+
+      <div class="col-actions">
+        <div class="card card-placeholder">
+          <button class="add-btn" onclick="document.getElementById('add-form').classList.toggle('visible')"> + </button>
+        </div>
+        <div class="card card-placeholder">
+          <button class="add-btn" onclick="document.getElementById('add-relation-form').classList.toggle('visible')"> = </button>
+        </div>
+        <form id="add-form" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
           <input name="first_name" placeholder="First name" required>
           <input name="last_name" placeholder="Last name" required>
           <input name="birthday" type="date" required>
@@ -30,7 +53,41 @@
             <option value="2">Male</option>
           </select>
           <button type="submit">Add</button>
+          <button type="button" onclick="this.parentElement.classList.remove('visible')">Cancel</button>
         </form>
+        <form id="add-relation-form" class="add-form" hx-post="/relation">
+          <select name="p1" required>
+            {{range .person.Parents}}
+            <option value="{{.ID}}">{{.FullName}}</option>
+            {{end}}
+            {{range .person.Siblings}}
+            <option value="{{.ID}}">{{.FullName}}</option>
+            {{end}}
+            <option value="{{.person.ID}}">{{.person.FullName}}</option>
+          </select>
+          <select name="p2" required>
+            {{range .person.Parents}}
+            <option value="{{.ID}}">{{.FullName}}</option>
+            {{end}}
+            {{range .person.Siblings}}
+            <option value="{{.ID}}">{{.FullName}}</option>
+            {{end}}
+            <option value="{{.person.ID}}">{{.person.FullName}}</option>
+          </select>
+          <select name="kinship" required>
+            <option value="P">Parenthood</option>
+            <option value="S">Siblingship</option>
+            <option value="H">Mariage</option>
+          </select>
+          <button type="submit">Relate</button>
+          <button type="button" onclick="this.parentElement.classList.remove('visible')">Cancel</button>
+        </form>
+      </div>
+
+      <div class="row-children">
+        <div class="card card-placeholder">
+          <p class="card-name">children</p>
+        </div>
       </div>
     </div>
   </body>

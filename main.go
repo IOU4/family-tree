@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,67 +14,80 @@ import (
 
 var people []Person
 var db *sql.DB
+var err error
 
 func main() {
-	var err error
 	db, err = sql.Open("sqlite3", "./database.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-	people = getPersons(db)
 	router := gin.Default()
 	router.GET("/", getIndex)
 	router.POST("/person", addPerson)
+	router.POST("/relation", addRelation)
 	router.LoadHTMLFiles("index.html")
 	router.StaticFile("styles.css", "styles.css")
 	router.StaticFile("favicon.svg", "favicon.svg")
 	router.Run(":8080")
 }
 
-func getIndex(c *gin.Context) {
-	var views []PersonView
-	for _, p := range people {
-		views = append(views, PersonView{
-			FullName: p.FirstName + " " + p.LastName,
-			Age:      calculateAge(p.Birth),
-		})
+func personToView(p Person) PersonView {
+	return PersonView{
+		ID:       p.id,
+		FullName: p.firstName + " " + p.lastName,
+		Age:      calculateAge(p.birth),
+		Gender:   p.gender,
 	}
+}
+
+func getIndex(c *gin.Context) {
+	people = getPeople(db)
+	p := people[rand.Intn(len(people))]
+	for _, v := range people {
+		if v.firstName == "soukaina" {
+			p = v
+		}
+	}
+
+	view := personToView(p)
+
+	// Populate parents
+	parents := getParents(db, p.id)
+	for _, parent := range parents {
+		view.Parents = append(view.Parents, personToView(parent))
+	}
+
+	// Populate siblings
+	siblings := getRelatedPeople(db, p.id, "S")
+	for _, sib := range siblings {
+		view.Siblings = append(view.Siblings, personToView(sib))
+	}
+
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"people": views,
+		"person": view,
 	})
 }
 
 func addPerson(c *gin.Context) {
-	firstName := c.PostForm("first_name")
-	lastName := c.PostForm("last_name")
+	p := Person{}
+	p.firstName = c.PostForm("first_name")
+	p.lastName = c.PostForm("last_name")
+	p.gender = c.PostForm("gender")
 	birthday := c.PostForm("birthday")
-	genderStr := c.PostForm("gender")
+	p.birth, err = time.Parse(birthday, "2006-01-02")
 
-	gender, err := strconv.Atoi(genderStr)
+	err = savePerson(db, p)
 	if err != nil {
-		c.String(http.StatusBadRequest, "invalid gender")
-		return
+		log.Fatal("failed to add person: ", err)
 	}
 
-	_, err = db.Exec(
-		"INSERT INTO person (first_name, last_name, birthday, gender) VALUES (?, ?, ?, ?)",
-		firstName, lastName, birthday, gender,
-	)
-	if err != nil {
-		c.String(http.StatusInternalServerError, "failed to add person")
-		return
-	}
-
-	// refresh in-memory list
-	people = getPersons(db)
-
-	// return updated grid for htmx swap
+	people = getPeople(db)
 	var views []PersonView
 	for _, p := range people {
 		views = append(views, PersonView{
-			FullName: p.FirstName + " " + p.LastName,
-			Age:      calculateAge(p.Birth),
+			FullName: p.firstName + " " + p.lastName,
+			Age:      calculateAge(p.birth),
 		})
 	}
 	c.HTML(http.StatusOK, "index.html", gin.H{
@@ -90,28 +104,14 @@ func calculateAge(birth time.Time) int {
 	return age
 }
 
-func getPersons(db *sql.DB) (people []Person) {
-	stmnt := "select * from person"
-	rows, err := db.Query(stmnt)
+func addRelation(c *gin.Context) {
+	r := Relation{}
+	r.p1, _ = strconv.Atoi(c.PostForm("p1"))
+	r.p2, _ = strconv.Atoi(c.PostForm("p2"))
+	r.kinship = c.PostForm("relation")
+
+	err = saveRelation(db, r)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Error saving relation:", err)
 	}
-	defer rows.Close()
-	i := 0
-	for rows.Next() {
-		var person Person
-		err := rows.Scan(
-			&person.ID,
-			&person.FirstName,
-			&person.LastName,
-			&person.Birth,
-			&person.Gender,
-			&person.Misc)
-		if err != nil {
-			log.Fatal(err)
-		}
-		people = append(people, person)
-		i++
-	}
-	return
 }

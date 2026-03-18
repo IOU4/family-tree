@@ -3,22 +3,26 @@ package main
 import "time"
 
 type Person struct {
-	ID        int
-	FirstName string
-	LastName  string
-	Birth     time.Time
-	Gender    int
-	Misc      *string
+	id        int
+	firstName string
+	lastName  string
+	birth     time.Time
+	gender    string
+	misc      *string
 }
 
 type Relation struct {
-	id           int
-	src          int
-	dest         int
-	relationType int
+	id        int
+	p1				int
+	p2        int
+	kinship		string
 }
 
 type PersonView struct {
-	FullName string
-	Age      int
+	ID				int
+	FullName	string
+	Age				int
+	Gender		string
+	Siblings	[]PersonView
+	Parents 	[]PersonView
 }
