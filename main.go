@@ -25,7 +25,6 @@ func main() {
 	router := gin.Default()
 	router.GET("/", getIndex)
 	router.POST("/person", addPerson)
-	router.POST("/relation", addRelation)
 	router.LoadHTMLFiles("index.html")
 	router.StaticFile("styles.css", "styles.css")
 	router.StaticFile("favicon.svg", "favicon.svg")
@@ -45,11 +44,11 @@ func getIndex(c *gin.Context) {
 	people = getPeople(db)
 	p := people[rand.Intn(len(people))]
 	for _, v := range people {
-		if v.firstName == "soukaina" {
+		if v.firstName == "hakima" {
 			p = v
+			break
 		}
 	}
-
 	view := personToView(p)
 
 	// Populate parents
@@ -59,13 +58,26 @@ func getIndex(c *gin.Context) {
 	}
 
 	// Populate siblings
-	siblings := getRelatedPeople(db, p.id, "S")
+	siblings := getSiblings(db, p.id)
 	for _, sib := range siblings {
 		view.Siblings = append(view.Siblings, personToView(sib))
 	}
 
+	// Populate siblings
+	children := getChildren(db, p.id)
+	for _, chi := range children {
+		view.Children = append(view.Children, personToView(chi))
+	}
+
+	// Populate partners
+	partners := getPartners(db, p.id)
+	for _, partner := range partners {
+		view.Partners = append(view.Partners, personToView(partner))
+	}
+
 	c.HTML(http.StatusOK, "index.html", gin.H{
-		"person": view,
+		"person":   view,
+		"childnum": len(children) - 1,
 	})
 }
 
@@ -74,10 +86,25 @@ func addPerson(c *gin.Context) {
 	p.firstName = c.PostForm("first_name")
 	p.lastName = c.PostForm("last_name")
 	p.gender = c.PostForm("gender")
-	birthday := c.PostForm("birthday")
-	p.birth, err = time.Parse(birthday, "2006-01-02")
+	birth := c.PostForm("birth")
+	p.birth, _ = time.Parse("2006-01-02", birth)
+	death := c.PostForm("death")
+	if death != "" {
+		d, _ := time.Parse("2006-01-02", death)
+		p.death = &d
+	}
 
-	err = savePerson(db, p)
+	newId, err := savePerson(db, p)
+	if err != nil {
+		log.Fatal("failed to add person: ", err)
+	}
+	fatherId := c.PostForm("fatherId")
+	motherId := c.PostForm("motherId")
+	relation := Relation{}
+	relation.father, _ = strconv.Atoi(fatherId)
+	relation.mother, _ = strconv.Atoi(motherId)
+	relation.person = newId
+	err = saveRelation(db, relation)
 	if err != nil {
 		log.Fatal("failed to add person: ", err)
 	}
@@ -102,16 +129,4 @@ func calculateAge(birth time.Time) int {
 		age--
 	}
 	return age
-}
-
-func addRelation(c *gin.Context) {
-	r := Relation{}
-	r.p1, _ = strconv.Atoi(c.PostForm("p1"))
-	r.p2, _ = strconv.Atoi(c.PostForm("p2"))
-	r.kinship = c.PostForm("relation")
-
-	err = saveRelation(db, r)
-	if err != nil {
-		log.Fatal("Error saving relation:", err)
-	}
 }

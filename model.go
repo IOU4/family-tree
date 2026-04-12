@@ -7,22 +7,24 @@ type Person struct {
 	firstName string
 	lastName  string
 	birth     time.Time
+	death     *time.Time
 	gender    string
 	misc      *string
 }
 
 type Relation struct {
-	id        int
-	p1				int
-	p2        int
-	kinship		string
+	person int
+	father int
+	mother int
 }
 
 type PersonView struct {
-	ID				int
-	FullName	string
-	Age				int
-	Gender		string
-	Siblings	[]PersonView
-	Parents 	[]PersonView
+	ID       int
+	FullName string
+	Age      int
+	Gender   string
+	Siblings []PersonView
+	Partners []PersonView
+	Parents  []PersonView
+	Children []PersonView
 }

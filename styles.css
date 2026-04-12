@@ -11,6 +11,8 @@
   --border: #030712;
   --connector: #030712;
   --gap: 3rem;
+  --minw: 12rem; /* gap*4 */
+  --minh: 4.5rem; /* gap*1.5 */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,8 +46,37 @@ body {
   gap: var(--gap);
 }
 
+.card {
+  border: 1px solid var(--border);
+  padding: 0.75rem;
+  background: var(--bg);
+  min-width: var(--minw);
+  min-height: var(--minh);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.card-placeholder {
+  border-style: dashed;
+  color: var(--fg-muted);
+  text-align: center;
+}
+
+.card-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.card-detail {
+  font-size: 0.875rem;
+  color: var(--fg-muted);
+}
+
 .row-parents {
-  grid-column: 2;
+  grid-column: 1 / -1;
   grid-row: 1;
   display: flex;
   gap: var(--gap);
@@ -91,89 +122,88 @@ body {
   content: "";
   position: absolute;
   top: 50%;
-  width: calc((var(--gap)) + (var(--gap)*5)/2);
+  width: calc(var(--gap) + var(--gap)*5/2);
   border-top: 1px solid var(--connector);
   transform: translateX(-100%);
 }
 
-.col-actions {
+.row-partners {
   grid-column: 1;
-  grid-row: 1 / -1;
+  grid-row: 2;
   display: flex;
   justify-content: end;
   align-items: center;
+  position: relative;
+}
+
+.row-partners::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: calc(var(--gap) + var(--gap)*5/2);
+  border-top: 1px solid var(--connector);
+  transform: translateX(100%);
 }
 
 .row-children {
-  grid-column: 2;
+  grid-column: 1 / -1;
   grid-row: 3;
+  gap: calc(var(--gap)/2);
   display: flex;
   align-items: flex-start;
   justify-content: center;
-}
-
-.card {
-  border: 1px solid var(--border);
-  padding: 0.75rem;
-  background: var(--bg);
   position: relative;
-  width: max-content;
-  min-width: calc(var(--gap)*2);
-  min-height: var(--gap);
-  z-index: 1;
 }
 
-.card-placeholder {
-  border-style: dashed;
-  color: var(--fg-muted);
+.row-children::before {
+  content: "";
+  height: calc(var(--gap)/2);
+  border-right: 1px solid var(--connector);
+  position: absolute;
+  top: calc(-1*var(--gap));
 }
 
-.card-name {
-  font-size: 1.125rem;
-  font-weight: 600;
+.row-children::after {
+  content: "";
+  width: calc(var(--x)*(var(--gap)/2 + var(--minw)));
+  border-top: 1px solid var(--connector);
+  position: absolute;
+  top: calc(-1*var(--gap)/2);
 }
 
-.card-detail {
-  font-size: 0.875rem;
-  color: var(--fg-muted);
-}
-
-.add-btn {
-  flex: 1;
-  border: none;
-  padding: .5rem 1.5rem;
-  font-size: 1.25rem;
-  cursor: pointer;
-  background: transparent;
-  color: var(--fg);
-}
-
-.add-btn:hover {
-  background: rgba(128, 128, 128, 0.1);
+.row-children>.card::before {
+  content: "";
+  position: absolute;
+  height: calc(var(--gap)/2);
+  top: calc(-1*var(--gap)/2);
+  left: 50%;
+  border-right: 1px solid var(--connector);
 }
 
 .add-form {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: 0.25rem;
   border: 1px solid var(--border);
   padding: 0.5rem;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 1rem;
+  left: 1rem;
   background: var(--bg);
+  min-width: var(--minw);
   z-index: 1;
-  min-width: 200px;
 }
 
-.add-form.visible {
-  display: flex;
+.add-form>p.visible {
+  display: block;
 }
 
 .add-form input, .add-form select, .add-form button {
   background: transparent;
-  border: 1px solid var(--border);
-  padding: 0.25rem;
+  border: none;
+  border-bottom: .5px solid var(--border);
+  padding: 0.8rem;
   font-size: 0.75rem;
   color: var(--fg);
 }
