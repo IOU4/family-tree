@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,11 +43,24 @@ func personToView(p Person) PersonView {
 
 func getIndex(c *gin.Context) {
 	people = getPeople(db)
+	if len(people) == 0 {
+		c.String(http.StatusNotFound, "no people found")
+		return
+	}
+
+	var allPeopleViews []PersonView
+	for _, person := range people {
+		allPeopleViews = append(allPeopleViews, personToView(person))
+	}
+
+	selectedPersonID, convErr := strconv.Atoi(c.Query("person_id"))
 	p := people[rand.Intn(len(people))]
-	for _, v := range people {
-		if v.firstName == "hakima" {
-			p = v
-			break
+	if convErr == nil {
+		for _, person := range people {
+			if person.id == selectedPersonID {
+				p = person
+				break
+			}
 		}
 	}
 	view := personToView(p)
@@ -68,6 +82,10 @@ func getIndex(c *gin.Context) {
 	for _, chi := range children {
 		view.Children = append(view.Children, personToView(chi))
 	}
+	childNum := 0
+	if len(children) > 0 {
+		childNum = len(children) - 1
+	}
 
 	// Populate partners
 	partners := getPartners(db, p.id)
@@ -77,7 +95,8 @@ func getIndex(c *gin.Context) {
 
 	c.HTML(http.StatusOK, "index.html", gin.H{
 		"person":   view,
-		"childnum": len(children) - 1,
+		"childnum": childNum,
+		"people":   allPeopleViews,
 	})
 }
 
@@ -86,6 +105,10 @@ func addPerson(c *gin.Context) {
 	p.firstName = c.PostForm("first_name")
 	p.lastName = c.PostForm("last_name")
 	p.gender = c.PostForm("gender")
+	if p.gender != "F" && p.gender != "M" {
+		c.String(http.StatusBadRequest, "invalid gender")
+		return
+	}
 	birth := c.PostForm("birth")
 	p.birth, _ = time.Parse("2006-01-02", birth)
 	death := c.PostForm("death")
@@ -98,28 +121,22 @@ func addPerson(c *gin.Context) {
 	if err != nil {
 		log.Fatal("failed to add person: ", err)
 	}
-	fatherId := c.PostForm("fatherId")
-	motherId := c.PostForm("motherId")
-	relation := Relation{}
-	relation.father, _ = strconv.Atoi(fatherId)
-	relation.mother, _ = strconv.Atoi(motherId)
-	relation.person = newId
-	err = saveRelation(db, relation)
-	if err != nil {
-		log.Fatal("failed to add person: ", err)
+
+	fatherRaw := strings.TrimSpace(c.PostForm("fatherId"))
+	motherRaw := strings.TrimSpace(c.PostForm("motherId"))
+	if fatherRaw != "" && motherRaw != "" {
+		relation := Relation{}
+		relation.father, _ = strconv.Atoi(fatherRaw)
+		relation.mother, _ = strconv.Atoi(motherRaw)
+		relation.person = newId
+		err = saveRelation(db, relation)
+		if err != nil {
+			log.Fatal("failed to add person: ", err)
+		}
 	}
 
-	people = getPeople(db)
-	var views []PersonView
-	for _, p := range people {
-		views = append(views, PersonView{
-			FullName: p.firstName + " " + p.lastName,
-			Age:      calculateAge(p.birth),
-		})
-	}
-	c.HTML(http.StatusOK, "index.html", gin.H{
-		"people": views,
-	})
+	c.Header("HX-Redirect", "/")
+	c.Status(http.StatusOK)
 }
 
 func calculateAge(birth time.Time) int {

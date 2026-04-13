@@ -47,7 +47,7 @@ body {
 }
 
 .card {
-  border: 1px solid var(--border);
+  border: .5px solid var(--fg-muted);
   padding: 0.75rem;
   background: var(--bg);
   min-width: var(--minw);
@@ -57,6 +57,21 @@ body {
   justify-content: center;
   position: relative;
   z-index: 1;
+}
+
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  transition: transform 120ms ease, border-color 120ms ease;
+}
+
+.card-link:hover {
+  transform: translateY(-2px);
+  border-color: var(--fg);
+}
+
+.card-main {
+  border: 2px solid var(--fg);
 }
 
 .card-placeholder {
@@ -181,22 +196,47 @@ body {
   border-right: 1px solid var(--connector);
 }
 
+.add-accordion {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  min-width: var(--minw);
+  z-index: 1;
+}
+
+.add-accordion > summary {
+  cursor: pointer;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  list-style: none;
+  user-select: none;
+}
+
+.add-accordion > summary::-webkit-details-marker {
+  display: none;
+}
+
+.add-accordion > summary::after {
+  content: "+";
+  float: right;
+}
+
+.add-accordion[open] > summary::after {
+  content: "-";
+}
+
 .add-form {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   border: 1px solid var(--border);
   padding: 0.5rem;
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
   background: var(--bg);
-  min-width: var(--minw);
-  z-index: 1;
-}
-
-.add-form>p.visible {
-  display: block;
+  border-left: none;
+  border-right: none;
+  border-bottom: none;
 }
 
 .add-form input, .add-form select, .add-form button {

@@ -19,10 +19,10 @@
     <div class="fam">
       <div class="row-parents">
         {{range .person.Parents}}
-        <div class="card">
+        <a class="card card-link" href="/?person_id={{.ID}}">
           <p class="card-name">{{.FullName}}</p>
           <p class="card-detail">{{.Age}} {{.Gender}}</p>
-        </div>
+        </a>
         {{else}}
         <div class="card card-placeholder">
           <p class="card-name">?</p>
@@ -35,10 +35,10 @@
 
       <div class="col-siblings">
         {{range .person.Siblings}}
-        <div class="card">
+        <a class="card card-link" href="/?person_id={{.ID}}">
           <p class="card-name">{{.FullName}}</p>
           <p class="card-detail">{{.Age}} {{.Gender}}</p>
-        </div>
+        </a>
         {{else}}
         <div class="card card-placeholder">
           <p class="card-name">?</p>
@@ -47,7 +47,7 @@
       </div>
 
       <div class="row-middle">
-        <div class="card">
+        <div class="card card-main">
           <p class="card-name">{{.person.FullName}}</p>
           <p class="card-detail">{{.person.Age}} {{.person.Gender}}</p>
         </div>
@@ -55,37 +55,45 @@
 
       <div class="row-partners">
         {{range .person.Partners}}
-        <div class="card">
+        <a class="card card-link" href="/?person_id={{.ID}}">
           <p class="card-name">{{.FullName}}</p>
           <p class="card-detail">{{.Age}} {{.Gender}}</p>
-        </div>
+        </a>
         {{else}}
         <div class="card card-placeholder">
           <p class="card-name">?</p>
         </div>
         {{end}}
       </div>
-      <form id="add-form" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
-        <input name="first_name" placeholder="First name" required>
-        <input name="last_name" placeholder="Last name" required>
-        <select name="gender" required>
-          <option value="1">Female</option>
-          <option value="2">Male</option>
-        </select>
-        <input name="birth" type="date" required>
-        <input name="death" type="date">
-        <button type="submit">Add</button>
-        <button type="button" onclick="this.parentElement.classList.add('visible')">Cancel</button>
-        <p id="add-success" style="color: green; display: none">Success!</p>
-        <p id="add-fail" style="color: red; display: none">Something Went Wrong!</p>
-      </form>
+      <details class="add-accordion">
+        <summary>Add person</summary>
+        <form id="add-form" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
+          <input name="first_name" placeholder="First name" required>
+          <input name="last_name" placeholder="Last name" required>
+          <select name="gender" required>
+            <option value="F">Female</option>
+            <option value="M">Male</option>
+          </select>
+          <input name="birth" type="date" required>
+          <input name="death" type="date">
+          <input name="fatherId" type="search" list="people-options" placeholder="Father" required>
+          <input name="motherId" type="search" list="people-options" placeholder="Mother" required>
+          <datalist id="people-options">
+            {{range .people}}
+            <option value="{{.ID}}" label="{{.FullName}}"></option>
+            {{end}}
+          </datalist>
+          <button type="submit">Add</button>
+          <button type="button" onclick="this.closest('details').open=false">Cancel</button>
+        </form>
+      </details>
 
       <div class="row-children" style="">
         {{range .person.Children}}
-        <div class="card">
+        <a class="card card-link" href="/?person_id={{.ID}}">
           <p class="card-name">{{.FullName}}</p>
           <p class="card-detail">{{.Age}} {{.Gender}}</p>
-        </div>
+        </a>
         {{else}}
         <div class="card card-placeholder">
           <p class="card-name">?</p>
