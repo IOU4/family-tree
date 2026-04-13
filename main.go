@@ -29,7 +29,7 @@ func main() {
 	router.LoadHTMLFiles("index.html")
 	router.StaticFile("styles.css", "styles.css")
 	router.StaticFile("favicon.svg", "favicon.svg")
-	router.Run(":8080")
+	router.Run(":8181")
 }
 
 func personToView(p Person) PersonView {
