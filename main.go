@@ -2,9 +2,12 @@ package main
 
 import (
 	"database/sql"
+	"errors"
+	"io"
 	"log"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -18,15 +21,18 @@ var db *sql.DB
 var err error
 
 func main() {
-	db, err = sql.Open("sqlite3", "./database.db")
+	db, err = sql.Open("sqlite3", "file:database.db?_foreign_keys=on")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 	router := gin.Default()
 	router.GET("/", getIndex)
+	router.GET("/add", getAdd)
 	router.POST("/person", addPerson)
-	router.LoadHTMLFiles("index.html")
+	router.DELETE("/person", deletePerson)
+	router.POST("/relation", addRelation)
+	router.LoadHTMLFiles("index.html", "add.html")
 	router.StaticFile("styles.css", "styles.css")
 	router.StaticFile("favicon.svg", "favicon.svg")
 	router.Run(":8181")
@@ -39,6 +45,22 @@ func personToView(p Person) PersonView {
 		Age:      calculateAge(p.birth),
 		Gender:   p.gender,
 	}
+}
+
+func getAdd(c *gin.Context) {
+	people = getPeople(db)
+	if len(people) == 0 {
+		c.String(http.StatusNotFound, "no people found")
+		return
+	}
+
+	var allPeopleViews []PersonView
+	for _, person := range people {
+		allPeopleViews = append(allPeopleViews, personToView(person))
+	}
+	c.HTML(http.StatusOK, "add.html", gin.H{
+		"people": allPeopleViews,
+	})
 }
 
 func getIndex(c *gin.Context) {
@@ -119,24 +141,139 @@ func addPerson(c *gin.Context) {
 
 	newId, err := savePerson(db, p)
 	if err != nil {
-		log.Fatal("failed to add person: ", err)
+		log.Printf("failed to add person: %v", err)
+		c.String(http.StatusInternalServerError, "failed to add person")
+		return
 	}
 
 	fatherRaw := strings.TrimSpace(c.PostForm("fatherId"))
 	motherRaw := strings.TrimSpace(c.PostForm("motherId"))
-	if fatherRaw != "" && motherRaw != "" {
+	fatherID, convErr := parseOptionalID(fatherRaw)
+	if convErr != nil {
+		c.String(http.StatusBadRequest, "invalid father id")
+		return
+	}
+	motherID, convErr := parseOptionalID(motherRaw)
+	if convErr != nil {
+		c.String(http.StatusBadRequest, "invalid mother id")
+		return
+	}
+	if fatherID != nil || motherID != nil {
 		relation := Relation{}
-		relation.father, _ = strconv.Atoi(fatherRaw)
-		relation.mother, _ = strconv.Atoi(motherRaw)
 		relation.person = newId
+		relation.father = fatherID
+		relation.mother = motherID
 		err = saveRelation(db, relation)
 		if err != nil {
-			log.Fatal("failed to add person: ", err)
+			log.Printf("failed to add relation for person %d: %v", newId, err)
+			c.String(http.StatusInternalServerError, "failed to add relation")
+			return
 		}
 	}
 
 	c.Header("HX-Redirect", "/")
 	c.Status(http.StatusOK)
+}
+
+func addRelation(c *gin.Context) {
+	personRaw := strings.TrimSpace(c.PostForm("personId"))
+	fatherRaw := strings.TrimSpace(c.PostForm("fatherId"))
+	motherRaw := strings.TrimSpace(c.PostForm("motherId"))
+
+	if personRaw == "" {
+		c.String(http.StatusBadRequest, "person is required")
+		return
+	}
+
+	relation := Relation{}
+	var convErr error
+	relation.person, convErr = strconv.Atoi(personRaw)
+	if convErr != nil {
+		c.String(http.StatusBadRequest, "invalid person id")
+		return
+	}
+	relation.father, convErr = parseOptionalID(fatherRaw)
+	if convErr != nil {
+		c.String(http.StatusBadRequest, "invalid father id")
+		return
+	}
+	relation.mother, convErr = parseOptionalID(motherRaw)
+	if convErr != nil {
+		c.String(http.StatusBadRequest, "invalid mother id")
+		return
+	}
+	if relation.father == nil && relation.mother == nil {
+		c.String(http.StatusBadRequest, "father or mother is required")
+		return
+	}
+
+	err := saveRelation(db, relation)
+	if err != nil {
+		log.Printf("failed to add relation: %v", err)
+		c.String(http.StatusInternalServerError, "failed to add relation")
+		return
+	}
+
+	c.Header("HX-Redirect", "/")
+	c.Status(http.StatusOK)
+}
+
+func deletePerson(c *gin.Context) {
+	personRaw := strings.TrimSpace(c.Query("personId"))
+	if personRaw == "" {
+		personRaw = strings.TrimSpace(c.PostForm("personId"))
+	}
+	if personRaw == "" {
+		personRaw = readDeleteField(c, "personId")
+	}
+	if personRaw == "" {
+		c.String(http.StatusBadRequest, "person is required")
+		return
+	}
+
+	personID, convErr := strconv.Atoi(personRaw)
+	if convErr != nil {
+		c.String(http.StatusBadRequest, "invalid person id")
+		return
+	}
+
+	err := deletePersonByID(db, personID)
+	if errors.Is(err, sql.ErrNoRows) {
+		c.String(http.StatusNotFound, "person not found")
+		return
+	}
+	if err != nil {
+		log.Printf("failed to delete person: %v", err)
+		c.String(http.StatusInternalServerError, "failed to delete person")
+		return
+	}
+
+	c.Header("HX-Redirect", "/")
+	c.Status(http.StatusOK)
+}
+
+func readDeleteField(c *gin.Context, field string) string {
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil || len(body) == 0 {
+		return ""
+	}
+	values, err := url.ParseQuery(string(body))
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(values.Get(field))
+}
+
+func parseOptionalID(raw string) (*int, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return nil, nil
+	}
+	id, err := strconv.Atoi(raw)
+	if err != nil {
+		return nil, err
+	}
+	return &id, nil
 }
 
 func calculateAge(birth time.Time) int {

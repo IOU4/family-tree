@@ -14,8 +14,8 @@ type Person struct {
 
 type Relation struct {
 	person int
-	father int
-	mother int
+	father *int
+	mother *int
 }
 
 type PersonView struct {

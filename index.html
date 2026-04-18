@@ -65,28 +65,6 @@
         </div>
         {{end}}
       </div>
-      <details class="add-accordion">
-        <summary>Add person</summary>
-        <form id="add-form" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
-          <input name="first_name" placeholder="First name" required>
-          <input name="last_name" placeholder="Last name" required>
-          <select name="gender" required>
-            <option value="F">Female</option>
-            <option value="M">Male</option>
-          </select>
-          <input name="birth" type="date" required>
-          <input name="death" type="date">
-          <input name="fatherId" type="search" list="people-options" placeholder="Father" required>
-          <input name="motherId" type="search" list="people-options" placeholder="Mother" required>
-          <datalist id="people-options">
-            {{range .people}}
-            <option value="{{.ID}}" label="{{.FullName}}"></option>
-            {{end}}
-          </datalist>
-          <button type="submit">Add</button>
-          <button type="button" onclick="this.closest('details').open=false">Cancel</button>
-        </form>
-      </details>
 
       <div class="row-children" style="">
         {{range .person.Children}}
@@ -100,6 +78,9 @@
         </div>
         {{end}}
       </div>
+
+      <a href="/add" class="add-link">Add person</a>
+
     </div>
   </body>
 </html>

@@ -47,7 +47,7 @@ body {
 }
 
 .card {
-  border: .5px solid var(--fg-muted);
+  border: 1px solid var(--fg-muted);
   padding: 0.75rem;
   background: var(--bg);
   min-width: var(--minw);
@@ -148,6 +148,7 @@ body {
   display: flex;
   justify-content: end;
   align-items: center;
+  gap: 0.5rem;
   position: relative;
 }
 
@@ -196,53 +197,29 @@ body {
   border-right: 1px solid var(--connector);
 }
 
-.add-accordion {
+.add-link {
   position: absolute;
+  padding: 0.75rem;
   top: 1rem;
   left: 1rem;
+  color: var(--fg);
   background: var(--bg);
-  border: 1px solid var(--border);
-  min-width: var(--minw);
-  z-index: 1;
-}
-
-.add-accordion > summary {
   cursor: pointer;
-  padding: 0.75rem;
-  font-size: 0.875rem;
-  list-style: none;
-  user-select: none;
-}
-
-.add-accordion > summary::-webkit-details-marker {
-  display: none;
-}
-
-.add-accordion > summary::after {
-  content: "+";
-  float: right;
-}
-
-.add-accordion[open] > summary::after {
-  content: "-";
 }
 
 .add-form {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: .5rem;
   border: 1px solid var(--border);
   padding: 0.5rem;
   background: var(--bg);
-  border-left: none;
-  border-right: none;
-  border-bottom: none;
+  min-width: calc(1.5*var(--minw));
 }
 
 .add-form input, .add-form select, .add-form button {
   background: transparent;
-  border: none;
-  border-bottom: .5px solid var(--border);
+  border: 1px solid var(--border);
   padding: 0.8rem;
   font-size: 0.75rem;
   color: var(--fg);
@@ -258,4 +235,14 @@ body {
 
 .add-form button:hover {
   background: rgba(128, 128, 128, 0.1);
+}
+
+.add-form p {
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
 }

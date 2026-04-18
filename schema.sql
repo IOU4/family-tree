@@ -12,9 +12,9 @@ create table person (
 );
 
 create table relation (
-  person INTEGER primary key REFERENCES person not null,
-  father INTEGER REFERENCES person not null,
-  mother INTEGER REFERENCES person not null
+  person INTEGER primary key REFERENCES person not null unique,
+  father INTEGER REFERENCES person,
+  mother INTEGER REFERENCES person
 );
 
 insert into person (id, first_name, last_name, birth, gender) values 
@@ -23,8 +23,12 @@ insert into person (id, first_name, last_name, birth, gender) values
   (3, 'soukaina', 'ouchaib', '1998-10-01', 'F'),
   (4, 'mariam', 'ouchaib', '1999-10-01', 'F'),
   (5, 'jawad', 'ouchaib', '2000-11-18', 'M'),
-  (6, 'imad', 'ouchaib', '2000-11-18', 'M');
+  (6, 'imad', 'ouchaib', '2000-11-18', 'M'),
+  (7, 'marwa', 'ouchaib', '2012-01-03', 'F'),
+  (8, 'imrane', 'ouchaib', '2020-01-03', 'M');
 insert into relation (person, father, mother) values(3, 1, 2);
 insert into relation (person, father, mother) values(4, 1, 2);
 insert into relation (person, father, mother) values(5, 1, 2);
 insert into relation (person, father, mother) values(6, 1, 2);
+insert into relation (person, father, mother) values(7, 1, 2);
+insert into relation (person, father, mother) values(8, 1, 2);

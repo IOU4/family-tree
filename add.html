@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>FamilyTree</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <meta name="color-scheme" content="dark light">
+    <script src="https://unpkg.com/htmx.org@2.0.3" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  </head>
+
+  <body>
+    <div class="actions">
+      <a class="add-link" href="/">Back</a>
+      <form id="add-form" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
+        <p>Add Person</p>
+        <input name="first_name" placeholder="First name" required>
+        <input name="last_name" placeholder="Last name" required>
+        <select name="gender" required>
+          <option value="F">Female</option>
+          <option value="M">Male</option>
+        </select>
+        <input name="birth" type="date" required>
+        <input name="death" type="date">
+        <input name="fatherId" type="search" list="people-options" placeholder="Father">
+        <input name="motherId" type="search" list="people-options" placeholder="Mother">
+        <datalist id="people-options">
+          {{range .people}}
+          <option value="{{.ID}}" label="{{.FullName}}"></option>
+          {{end}}
+        </datalist>
+        <button type="submit">Add</button>
+      </form>
+
+      <form id="add-parents-form" class="add-form" hx-post="/relation" hx-target="body" hx-swap="outerHTML">
+        <p>Add Person Parents</p>
+        <input name="personId" type="search" list="people-options" placeholder="Person" required>
+        <input name="fatherId" type="search" list="people-options" placeholder="Father">
+        <input name="motherId" type="search" list="people-options" placeholder="Mother">
+        <button type="submit">Add</button>
+      </form>
+
+      <form id="add-parents-form" class="add-form" hx-delete="/person" hx-target="body" hx-swap="outerHTML">
+        <p>Remove Person</p>
+        <input name="personId" type="search" list="people-options" placeholder="Person" required>
+        <button type="submit">Remove</button>
+      </form>
+    </div>
+  </body>
+</html>

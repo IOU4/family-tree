@@ -170,7 +170,43 @@ func savePerson(db *sql.DB, person Person) (int, error) {
 }
 
 func saveRelation(db *sql.DB, relation Relation) error {
-	_, err := db.Exec("INSERT INTO relation (person, father, mother) values (?, ?, ?)",
-		relation.person, relation.father, relation.mother)
+	_, err := db.Exec(
+		`INSERT INTO relation (person, father, mother) values (?, ?, ?)
+		 ON CONFLICT(person) DO UPDATE SET
+		   father = COALESCE(excluded.father, relation.father),
+		   mother = COALESCE(excluded.mother, relation.mother)`,
+		relation.person, relation.father, relation.mother,
+	)
 	return err
+}
+
+func deletePersonByID(db *sql.DB, personID int) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+
+	_, err = tx.Exec("DELETE FROM relation WHERE person = ? OR father = ? OR mother = ?", personID, personID, personID)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	result, err := tx.Exec("DELETE FROM person WHERE id = ?", personID)
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		_ = tx.Rollback()
+		return err
+	}
+	if rows == 0 {
+		_ = tx.Rollback()
+		return sql.ErrNoRows
+	}
+
+	return tx.Commit()
 }
