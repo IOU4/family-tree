@@ -11,9 +11,14 @@
   </head>
 
   <body>
+    <datalist id="people-options">
+      {{range .people}}
+      <option value="{{.ID}}" label="{{.FullName}}"></option>
+      {{end}}
+    </datalist>
     <div class="actions">
       <a class="add-link" href="/">Back</a>
-      <form id="add-form" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
+      <form id="add-person" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
         <p>Add Person</p>
         <input name="first_name" placeholder="First name" required>
         <input name="last_name" placeholder="Last name" required>
@@ -25,24 +30,35 @@
         <input name="death" type="date">
         <input name="fatherId" type="search" list="people-options" placeholder="Father">
         <input name="motherId" type="search" list="people-options" placeholder="Mother">
-        <datalist id="people-options">
-          {{range .people}}
-          <option value="{{.ID}}" label="{{.FullName}}"></option>
-          {{end}}
-        </datalist>
         <button type="submit">Add</button>
       </form>
 
       <form id="add-parents-form" class="add-form" hx-post="/relation" hx-target="body" hx-swap="outerHTML">
-        <p>Add Person Parents</p>
+        <p>Add Parents</p>
         <input name="personId" type="search" list="people-options" placeholder="Person" required>
         <input name="fatherId" type="search" list="people-options" placeholder="Father">
         <input name="motherId" type="search" list="people-options" placeholder="Mother">
         <button type="submit">Add</button>
       </form>
 
-      <form id="add-parents-form" class="add-form" hx-delete="/person" hx-target="body" hx-swap="outerHTML">
-        <p>Remove Person</p>
+      <form id="update-person" class="add-form" hx-put="/person" hx-target="body" hx-swap="outerHTML">
+        <p>Update Person</p>
+        <input name="personId" type="search" list="people-options" placeholder="Person Id">
+        <input name="first_name" placeholder="First name" required>
+        <input name="last_name" placeholder="Last name" required>
+        <select name="gender" required>
+          <option value="F">Female</option>
+          <option value="M">Male</option>
+        </select>
+        <input name="birth" type="date" required>
+        <input name="death" type="date">
+        <input name="fatherId" type="search" list="people-options" placeholder="Father">
+        <input name="motherId" type="search" list="people-options" placeholder="Mother">
+        <button type="submit">Update</button>
+      </form>
+
+      <form id="delete-person" class="add-form" hx-delete="/person" hx-target="body" hx-swap="outerHTML">
+        <p>Delete Person</p>
         <input name="personId" type="search" list="people-options" placeholder="Person" required>
         <button type="submit">Remove</button>
       </form>

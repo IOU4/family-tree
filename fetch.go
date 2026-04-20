@@ -180,6 +180,30 @@ func saveRelation(db *sql.DB, relation Relation) error {
 	return err
 }
 
+func updatePersonByID(db *sql.DB, person Person) error {
+	result, err := db.Exec(
+		"UPDATE person SET first_name = ?, last_name = ?, birth = ?, death = ?, gender = ? WHERE id = ?",
+		person.firstName,
+		person.lastName,
+		person.birth,
+		person.death,
+		person.gender,
+		person.id,
+	)
+	if err != nil {
+		return err
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}
+
 func deletePersonByID(db *sql.DB, personID int) error {
 	tx, err := db.Begin()
 	if err != nil {

@@ -30,6 +30,7 @@ func main() {
 	router.GET("/", getIndex)
 	router.GET("/add", getAdd)
 	router.POST("/person", addPerson)
+	router.PUT("/person", updatePerson)
 	router.DELETE("/person", deletePerson)
 	router.POST("/relation", addRelation)
 	router.LoadHTMLFiles("index.html", "add.html")
@@ -169,6 +170,70 @@ func addPerson(c *gin.Context) {
 			c.String(http.StatusInternalServerError, "failed to add relation")
 			return
 		}
+	}
+
+	c.Header("HX-Redirect", "/")
+	c.Status(http.StatusOK)
+}
+
+func updatePerson(c *gin.Context) {
+	personRaw := strings.TrimSpace(c.PostForm("personId"))
+	if personRaw == "" {
+		c.String(http.StatusBadRequest, "person is required")
+		return
+	}
+
+	personID, convErr := strconv.Atoi(personRaw)
+	if convErr != nil {
+		c.String(http.StatusBadRequest, "invalid person id")
+		return
+	}
+
+	p := Person{}
+	p.id = personID
+	p.firstName = strings.TrimSpace(c.PostForm("first_name"))
+	p.lastName = strings.TrimSpace(c.PostForm("last_name"))
+	p.gender = strings.TrimSpace(c.PostForm("gender"))
+	if p.firstName == "" || p.lastName == "" {
+		c.String(http.StatusBadRequest, "first and last name are required")
+		return
+	}
+	if p.gender != "F" && p.gender != "M" {
+		c.String(http.StatusBadRequest, "invalid gender")
+		return
+	}
+
+	birthRaw := strings.TrimSpace(c.PostForm("birth"))
+	if birthRaw == "" {
+		c.String(http.StatusBadRequest, "birth is required")
+		return
+	}
+	birth, err := time.Parse("2006-01-02", birthRaw)
+	if err != nil {
+		c.String(http.StatusBadRequest, "invalid birth date")
+		return
+	}
+	p.birth = birth
+
+	deathRaw := strings.TrimSpace(c.PostForm("death"))
+	if deathRaw != "" {
+		d, err := time.Parse("2006-01-02", deathRaw)
+		if err != nil {
+			c.String(http.StatusBadRequest, "invalid death date")
+			return
+		}
+		p.death = &d
+	}
+
+	err = updatePersonByID(db, p)
+	if errors.Is(err, sql.ErrNoRows) {
+		c.String(http.StatusNotFound, "person not found")
+		return
+	}
+	if err != nil {
+		log.Printf("failed to update person: %v", err)
+		c.String(http.StatusInternalServerError, "failed to update person")
+		return
 	}
 
 	c.Header("HX-Redirect", "/")

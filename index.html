@@ -17,7 +17,7 @@
 
   <body>
     <div class="fam">
-      <div class="row-parents">
+      <div class="cell-parents">
         {{range .person.Parents}}
         <a class="card card-link" href="/?person_id={{.ID}}">
           <p class="card-name">{{.FullName}}</p>
@@ -33,40 +33,43 @@
         {{end}}
       </div>
 
-      <div class="col-siblings">
-        {{range .person.Siblings}}
-        <a class="card card-link" href="/?person_id={{.ID}}">
-          <p class="card-name">{{.FullName}}</p>
-          <p class="card-detail">{{.Age}} {{.Gender}}</p>
-        </a>
-        {{else}}
-        <div class="card card-placeholder">
-          <p class="card-name">?</p>
+        <!-- parteners -->
+        <div class="cell-partners">
+          {{range .person.Partners}}
+          <a class="card card-link" href="/?person_id={{.ID}}">
+            <p class="card-name">{{.FullName}}</p>
+            <p class="card-detail">{{.Age}} {{.Gender}}</p>
+          </a>
+          {{else}}
+          <div class="card card-placeholder">
+            <p class="card-name">?</p>
+          </div>
+          {{end}}
         </div>
-        {{end}}
-      </div>
-
-      <div class="row-middle">
-        <div class="card card-main">
-          <p class="card-name">{{.person.FullName}}</p>
-          <p class="card-detail">{{.person.Age}} {{.person.Gender}}</p>
+        <!-- main -->
+        <div class="cell-main">
+          <div class="card card-main">
+            <p class="card-name">{{.person.FullName}}</p>
+            <p class="card-detail">{{.person.Age}} {{.person.Gender}}</p>
+          </div>
         </div>
-      </div>
-
-      <div class="row-partners">
-        {{range .person.Partners}}
-        <a class="card card-link" href="/?person_id={{.ID}}">
-          <p class="card-name">{{.FullName}}</p>
-          <p class="card-detail">{{.Age}} {{.Gender}}</p>
-        </a>
-        {{else}}
-        <div class="card card-placeholder">
-          <p class="card-name">?</p>
+        <!-- sibligns -->
+        <div class="cell-siblings">
+          {{range .person.Siblings}}
+          <a class="card card-link" href="/?person_id={{.ID}}">
+            <p class="card-name">{{.FullName}}</p>
+            <p class="card-detail">{{.Age}} {{.Gender}}</p>
+          </a>
+          {{else}}
+          <div class="card card-placeholder">
+            <p class="card-name">?</p>
+          </div>
+          <div class="card card-placeholder">
+            <p class="card-name">?</p>
+          </div>
+          {{end}}
         </div>
-        {{end}}
-      </div>
-
-      <div class="row-children" style="">
+      <div class="cell-children" style="">
         {{range .person.Children}}
         <a class="card card-link" href="/?person_id={{.ID}}">
           <p class="card-name">{{.FullName}}</p>
@@ -76,11 +79,12 @@
         <div class="card card-placeholder">
           <p class="card-name">?</p>
         </div>
+        <div class="card card-placeholder">
+          <p class="card-name">?</p>
+        </div>
         {{end}}
       </div>
-
-      <a href="/add" class="add-link">Add person</a>
-
     </div>
+    <a href="/add" class="add-link">Add person</a>
   </body>
 </html>
