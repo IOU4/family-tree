@@ -11,13 +11,13 @@
   </head>
 
   <body>
+    <a class="add-link" href="/">Back</a>
     <datalist id="people-options">
       {{range .people}}
       <option value="{{.ID}}" label="{{.FullName}}"></option>
       {{end}}
     </datalist>
     <div class="actions">
-      <a class="add-link" href="/">Back</a>
       <form id="add-person" class="add-form" hx-post="/person" hx-target="body" hx-swap="outerHTML">
         <p>Add Person</p>
         <input name="first_name" placeholder="First name" required>

@@ -7,19 +7,19 @@
 :root {
   --bg: #f9fafb;
   --fg: #030712;
-  --fg-muted: rgba(3, 7, 18, 0.5);
+  --muted: rgba(3, 7, 18, 0.5);
   --border: #030712;
   --connector: #030712;
   --gap: 3.5rem;
-  --minw: 14rem; /* gap*4 */
-  --minh: 4.5rem; /* gap*1.5 */
+  --cw: 14rem; /* gap*4 */
+  --ch: 4.5rem; /* gap*1.5 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: #030712;
     --fg: #f9fafb;
-    --fg-muted: rgba(249, 250, 251, 0.5);
+    --muted: rgba(249, 250, 251, 0.5);
     --border: #f9fafb;
     --connector: #f9fafb;
   }
@@ -43,11 +43,11 @@ body {
 }
 
 .card {
-  border: 1px solid var(--fg-muted);
+  border: 1px solid var(--muted);
+  width: var(--cw);
+  height: var(--ch);
   padding: 0.75rem;
   background: var(--bg);
-  min-width: var(--minw);
-  min-height: var(--minh);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -72,7 +72,7 @@ body {
 
 .card-placeholder {
   border-style: dashed;
-  color: var(--fg-muted);
+  color: var(--muted);
   text-align: center;
 }
 
@@ -83,7 +83,7 @@ body {
 
 .card-detail {
   font-size: 0.875rem;
-  color: var(--fg-muted);
+  color: var(--muted);
 }
 
 .cell-parents {
@@ -128,9 +128,9 @@ body {
   align-items: start;
   gap: 0.5rem;
   position: relative;
-  width: var(--minw);
+  width: var(--cw);
   flex-wrap: wrap;
-  height: var(--minh);
+  height: var(--ch);
 }
 
 .cell-siblings::before {
@@ -165,7 +165,7 @@ body {
 .cell-children {
   grid-column: 2;
   grid-row: 3;
-  width: calc(2*var(--minw) + var(--gap));
+  width: calc(2*var(--cw) + var(--gap));
   gap: calc(var(--gap)/2);
   display: flex;
   flex-wrap: wrap;
@@ -184,7 +184,7 @@ body {
 
 .cell-children::after {
   content: "";
-  width: calc(var(--minw) + var(--gap)/2);
+  width: calc(var(--cw) + var(--gap)/2);
   border-top: 1px solid var(--connector);
   position: absolute;
   top: calc(-1*var(--gap)/2);
@@ -201,7 +201,7 @@ body {
 
 .add-link {
   position: absolute;
-  bottom: 1rem;
+  top: 1rem;
   left: 1rem;
   color: var(--fg);
   background: var(--bg);
@@ -215,7 +215,7 @@ body {
   border: 1px solid var(--border);
   padding: 0.5rem;
   background: var(--bg);
-  min-width: calc(1.5*var(--minw));
+  min-width: calc(1.5*var(--cw));
 }
 
 .add-form input, .add-form select, .add-form button {
@@ -227,7 +227,7 @@ body {
 }
 
 .add-form input::placeholder {
-  color: var(--fg-muted);
+  color: var(--muted);
 }
 
 .add-form button {
@@ -245,5 +245,8 @@ body {
 .actions {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--gap);
+  width: 98vw;
+  margin-top: 4rem;
 }
