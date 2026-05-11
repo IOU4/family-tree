@@ -208,6 +208,16 @@ body {
   cursor: pointer;
 }
 
+.search {
+  position: absolute;
+  top: 1rem;
+  left 50%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: .5rem;
+}
+
 .add-form {
   display: flex;
   flex-direction: column;

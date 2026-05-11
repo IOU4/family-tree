@@ -16,8 +16,13 @@
   </head>
 
   <body>
-    <a href="/add" class="add-link">Add person</a>
+    <datalist id="people-options">
+      {{range .people}}
+      <option value="{{.ID}}" label="{{.FullName}}"></option>
+      {{end}}
+    </datalist>
     <div class="fam">
+      <input name="person_id" class="search" type="search" list="people-options" placeholder="Person ID" required>
       <div class="cell-parents">
         {{range .person.Parents}}
         <a class="card card-link" href="/?person_id={{.ID}}">
