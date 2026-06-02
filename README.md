@@ -1,10 +1,29 @@
 # Family Tree
-build your family tree
+A small web app to view and edit a family tree. It stores people and parent
+relations in SQLite and renders the tree in HTML with HTMX.
 
 # Tech stack
-- grpc
-- sqllite
+- go (gin)
+- sqlite
 - htmx
+
+# Run locally
+Prereqs: Go 1.24+, sqlite3 CLI (optional).
+
+If you want a fresh database:
+
+```bash
+rm -f database.db
+sqlite3 database.db < schema.sql
+```
+
+Start server:
+
+```bash
+go run ./main.go
+```
+
+Open http://localhost:8181
 
 # Release binary
 
